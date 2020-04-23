@@ -1,6 +1,5 @@
-import dateutil
-import holidays
 import logging
+import dateutil
 import datetime
 import pandas as pd
 from dateutil import rrule
@@ -19,12 +18,14 @@ class BSUCalendar(object):
             First academic year to produce dates (e.g. 2019 == '2019-2020 academic year')
         end_year : int
             Last academic year to produce dates
+        log_level : str
+            Level to pass to logger. See logging module.
 
         """
         self._set_logger(log_level)
-        self.semesters = ["Fall", "Spring", "Summer"]
-        self.sem_code_to_int = {"Fall": 10, "Spring": 20, "Summer": 30}
-        self.int_to_sem_code = {v: k for k, v in self.sem_code_to_int.items()}
+        self._semesters = ["Fall", "Spring", "Summer"]
+        self._sem_code_to_int = {"Fall": 10, "Spring": 20, "Summer": 30}
+        self._int_to_sem_code = {v: k for k, v in self._sem_code_to_int.items()}
 
         self.holidays = (
             "Thanksgiving Break",
@@ -84,39 +85,33 @@ class BSUCalendar(object):
 
         # Creates dataframe with columns:
         #   Term, Year, Semester, DateName, Date, Tags
-        dates_df = []
+        dates = []
         for yr in self.years:
-            # Note: **academic** year
-            yr_dates = {}
-
             # fall term
             f_start = next(fall_start)
             f_end = f_start + term_length
+            # spring term
+            sp_start = self._add_days(f_end, xmas_break)
+            sp_end = self._add_days(sp_start, term_length)
+            # summer term
+            sm_start = self._add_days(sp_end, 10)
+            sm_end = self._add_days(sp_start, sum_term_length)
 
-            dates_df.append(
+            dates.append(
                 self._get_fall_dates(
                     yr, f_start, f_end, fall_break_start, labor_day, thanksgiving,
                 )
             )
-
-            # spring term
-            sp_start = self._add_days(f_end, xmas_break)
-            sp_end = self._add_days(sp_start, term_length)
-
-            dates_df.append(
+            dates.append(
                 self._get_spring_dates(yr, sp_start, sp_end, mlk_day, spring_withdraw)
             )
-
-            # summer term
-            sm_start = self._add_days(sp_end, 10)
-            sm_end = self._add_days(sp_start, sum_term_length)
-            dates_df.append(
+            dates.append(
                 self._get_summer_dates(
                     yr, sm_start, sm_end, memorial_day, independence_day
                 )
             )
 
-        self.dates_df = pd.concat(dates_df)
+        self.dates_df = pd.concat(dates)
 
     # def date_in_term(self, term, field):
     #     """Get a date in a term"""
@@ -128,7 +123,7 @@ class BSUCalendar(object):
     # def dates_by_tag(self, tag):
     #     """Get all dates for a tag"""
     #     yr = int(round(term, -2) / 100)
-    #     sem = self.int_to_sem_code(term - round(term, -2))
+    #     sem = self._int_to_sem_code(term - round(term, -2))
     #     if tag in self.tags:
     #         fields = self.tags[tag]
     #         if tag == "Holidays":
@@ -143,7 +138,7 @@ class BSUCalendar(object):
     #         else:
     #             vals = {
     #                 f"{sem} {fld}": self.dates[f"{sem} {fld}"]
-    #                 for sem in self.semesters
+    #                 for sem in self._semesters
     #                 for fld in fields
     #             }
     #         return vals
@@ -233,7 +228,7 @@ class BSUCalendar(object):
 
     def _make_semester_df(self, yr, semester, rows):
         """Take list of semester date data and return DataFrame"""
-        term = 100 * yr + self.sem_code_to_int(semester)
+        term = 100 * yr + self._sem_code_to_int[semester]
         n_rows = len(rows)
         data = {
             "Term": n_rows * [term],
