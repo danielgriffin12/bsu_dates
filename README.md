@@ -1,3 +1,4 @@
 # BSU Dates
 
-A dictionary of important dates on Ball State University's academic calendar.
+Produces a DataFrame of dates that are useful for analysing timeseries
+data from Ball State University.
