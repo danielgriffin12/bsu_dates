@@ -2,6 +2,7 @@ import dateutil
 import holidays
 import logging
 import datetime
+import pandas as pd
 from dateutil import rrule
 
 
@@ -80,6 +81,9 @@ class BSUCalendar(object):
         fall_start = self._fall_start(**timeframe)
         fall_break_start = self._fall_break_start(**timeframe)
         spring_withdraw = self._spring_withdraw_deadline(**timeframe)
+
+        # should return a dataframe with columns:
+        # Term, Year, Semester, DateName, Date, Tags
 
         self.dates = {}
         for yr in self.years:
