@@ -59,9 +59,8 @@ class BSUCalendar(object):
         self.min_date = datetime.date(start_year, 8, 1)
         if end_year is None:
             end_year = datetime.datetime.now().year + 2
-        self.max_date = datetime.date(end_year, 8, 1)
 
-        self.years = list(range(self.min_date.year, self.max_date.year))
+        self.years = list(range(start_year, end_year))
         self.n_yrs = len(self.years)
         # self.terms = [ 100*yr + sem for yr in self.years for sem in [10, 20, 30] ]
 
@@ -118,6 +117,7 @@ class BSUCalendar(object):
     #     if isinstance(term, str):
     #         term = int(term)
     #     yr = int(round(term, -2) / 100)
+    #     return self.dates.loc[self.dates.Term.eq(term), field]
     #     return self.dates[yr][field]
 
     # def dates_by_tag(self, tag):
@@ -201,17 +201,17 @@ class BSUCalendar(object):
             sp_break_start = sp_start + datetime.timedelta(weeks=8)
 
         rows = [
-            ["Spring Term Start", sp_start, "Instruction"],
-            ["Spring Classes Start", sp_start, "Instruction"],
+            ["Term Start", sp_start, "Instruction"],
+            ["Classes Start", sp_start, "Instruction"],
             ["MLK Day", next(mlk_day), "Instruction,Holiday"],
-            ["Spring Break Start", sp_break_start, "Instruction"],
-            ["Spring Break End", self._add_days(sp_break_start, 4), "Instruction"],
-            ["Spring Withdraw Deadline", next(spring_withdraw), "Registration"],
-            ["Spring Classes End", self._add_days(sp_end, -4), "Instruction"],
-            ["Spring Finals Start", self._add_days(sp_end, -3), "Instruction"],
-            ["Spring Finals End", sp_end, "Instruction"],
-            ["Spring Term End", sp_end, "Instruction"],
-            ["Spring Final Grades Due", self._add_days(sp_end, 3), "Instruction"],
+            ["Break Start", sp_break_start, "Instruction"],
+            ["Break End", self._add_days(sp_break_start, 4), "Instruction"],
+            ["Withdraw Deadline", next(spring_withdraw), "Registration"],
+            ["Classes End", self._add_days(sp_end, -4), "Instruction"],
+            ["Finals Start", self._add_days(sp_end, -3), "Instruction"],
+            ["Finals End", sp_end, "Instruction"],
+            ["Term End", sp_end, "Instruction"],
+            ["Final Grades Due", self._add_days(sp_end, 3), "Instruction"],
         ]
 
         return self._make_semester_df(yr, "Spring", rows)
@@ -219,10 +219,10 @@ class BSUCalendar(object):
     def _get_summer_dates(self, yr, sm_start, sm_end, memorial_day, independence_day):
         """Summer term important dates"""
         rows = [
-            ["Summer Term Start", sm_start, "Instruction"],
+            ["Term Start", sm_start, "Instruction"],
             ["Independence Day", next(independence_day), "Instruction,Holiday"],
-            ["Summer Term End", sm_end, "Instruction"],
-            ["Summer Final Grades Due", self._add_days(sm_end, 3), "Instruction"],
+            ["Term End", sm_end, "Instruction"],
+            ["Final Grades Due", self._add_days(sm_end, 3), "Instruction"],
         ]
         return self._make_semester_df(yr, "Summer", rows)
 
