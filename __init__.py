@@ -94,7 +94,7 @@ class BSUCalendar(object):
             sp_end = self._add_days(sp_start, term_length)
             # summer term
             sm_start = self._add_days(sp_end, 10)
-            sm_end = self._add_days(sp_start, sum_term_length)
+            sm_end = self._add_days(sm_start, sum_term_length)
 
             dates.append(
                 self._get_fall_dates(
